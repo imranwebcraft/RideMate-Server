@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -50,10 +50,23 @@ async function run() {
 			}
 		});
 
+		// Get a specific service by id
+		app.get('/api/v1/services/:id', async (req, res) => {
+			try {
+				const id = req.params.id;
+				const query = { _id: new ObjectId(id) };
+				const result = await serviceCollection.findOne(query);
+				console.log(result);
+			} catch (error) {
+				console.log(error);
+			}
+		});
+
 		// **** BOOKING **** //
 
 		app.post('/api/v1/user/create-booking', async (req, res) => {
-			console.log(req.body);
+			// const { id } = req.params;
+			console.log(req.params);
 		});
 
 		// **** AUTHENTICATION || JWT **** //
