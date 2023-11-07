@@ -153,6 +153,30 @@ async function run() {
 			}
 		});
 
+		// http://localhost:5000/api/v1/user/bookings/654a485ae5a50c4b9c0c4905
+		app.patch('/api/v1/user/bookings/:id', async (req, res) => {
+			try {
+				const id = req.params.id;
+				const updateStatus = req.body.status;
+				// console.log(id, updateStatus);
+				const options = { upsert: true };
+				const filter = { _id: new ObjectId(id) };
+				const updateDoc = {
+					$set: {
+						status: updateStatus,
+					},
+				};
+				const result = await bookingCollection.updateOne(
+					filter,
+					updateDoc,
+					options
+				);
+				res.send(result);
+			} catch (error) {
+				console.log(error);
+			}
+		});
+
 		// **** AUTHENTICATION || JWT **** //
 
 		app.post('/api/v1/auth/access-token', async (req, res) => {
