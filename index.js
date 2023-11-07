@@ -46,8 +46,12 @@ async function run() {
 		// http://localhost:5000/api/v1/services?serviceProviderEmail=laila@example.com
 		app.get('/api/v1/services', async (req, res) => {
 			try {
+				const serviceName = req.query.serviceName;
 				const spEmail = req.query.serviceProviderEmail;
 				let queryObj = {};
+				if (serviceName) {
+					queryObj.serviceName = serviceName;
+				}
 				if (spEmail) {
 					queryObj.serviceProviderEmail = spEmail;
 				}
