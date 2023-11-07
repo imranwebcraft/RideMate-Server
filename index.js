@@ -65,6 +65,17 @@ async function run() {
 			}
 		});
 
+		// Add service to the database
+		app.post('/api/v1/add-service', async (req, res) => {
+			try {
+				const serviceData = req.body;
+				const result = await serviceCollection.insertOne(serviceData);
+				res.send(result);
+			} catch (error) {
+				console.log(error);
+			}
+		});
+
 		// **** BOOKING **** //
 
 		app.post('/api/v1/user/create-booking', async (req, res) => {
