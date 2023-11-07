@@ -36,7 +36,10 @@ async function run() {
 		// Connect the client to the server
 		await client.connect();
 
+		// Service collection
 		const serviceCollection = client.db('rideMate').collection('services');
+		// Booking collextion
+		const bookingCollection = client.db('rideMate').collection('bookings');
 
 		// **** ALL SERVICES **** //
 
@@ -56,7 +59,7 @@ async function run() {
 				const id = req.params.id;
 				const query = { _id: new ObjectId(id) };
 				const result = await serviceCollection.findOne(query);
-				console.log(result);
+				res.send(result);
 			} catch (error) {
 				console.log(error);
 			}
@@ -65,8 +68,14 @@ async function run() {
 		// **** BOOKING **** //
 
 		app.post('/api/v1/user/create-booking', async (req, res) => {
-			// const { id } = req.params;
-			console.log(req.params);
+			try {
+				const bookingData = req.body;
+				const result = await bookingCollection.insertOne(bookingData);
+				res.send(result);
+				// console.log(result);
+			} catch (error) {
+				console.log(error);
+			}
 		});
 
 		// **** AUTHENTICATION || JWT **** //
