@@ -70,6 +70,17 @@ async function run() {
 				console.log(error);
 			}
 		});
+		// Delete a specific service by id
+		app.delete('/api/v1/services/:id', async (req, res) => {
+			try {
+				const id = req.params.id;
+				const query = { _id: new ObjectId(id) };
+				const result = await serviceCollection.deleteOne(query);
+				res.send(result);
+			} catch (error) {
+				console.log(error);
+			}
+		});
 
 		// Add service to the database
 		app.post('/api/v1/add-service', async (req, res) => {
