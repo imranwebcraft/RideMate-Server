@@ -43,10 +43,16 @@ async function run() {
 
 		// **** ALL SERVICES **** //
 
+		// http://localhost:5000/api/v1/services?serviceProviderEmail=laila@example.com
 		app.get('/api/v1/services', async (req, res) => {
 			try {
-				let query = {};
-				const result = await serviceCollection.find(query).toArray();
+				const spEmail = req.query.serviceProviderEmail;
+				console.log(spEmail);
+				let queryObj = {};
+				if (spEmail) {
+					queryObj.serviceProviderEmail = spEmail;
+				}
+				const result = await serviceCollection.find(queryObj).toArray();
 				res.send(result);
 			} catch (error) {
 				console.log(error);
