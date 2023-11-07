@@ -127,10 +127,13 @@ async function run() {
 			try {
 				console.log(req.query);
 				const userEmail = req.query.userEmail;
-				console.log(userEmail);
+				const spEmail = req.query.serviceProviderEmail;
 				let query = {};
 				if (userEmail) {
 					query.userEmail = userEmail;
+				}
+				if (spEmail) {
+					query.serviceProviderEmail = spEmail;
 				}
 				const result = await bookingCollection.find(query).toArray();
 				res.send(result);
