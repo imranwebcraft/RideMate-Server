@@ -47,7 +47,6 @@ async function run() {
 		app.get('/api/v1/services', async (req, res) => {
 			try {
 				const spEmail = req.query.serviceProviderEmail;
-				console.log(spEmail);
 				let queryObj = {};
 				if (spEmail) {
 					queryObj.serviceProviderEmail = spEmail;
@@ -80,6 +79,32 @@ async function run() {
 			} catch (error) {
 				console.log(error);
 			}
+		});
+		// Update service
+		app.put('/api/v1/services/:id', async (req, res) => {
+			const id = req.params.id;
+			const updateService = req.body;
+			console.log(id);
+			console.log(updateService);
+			const filter = { _id: new ObjectId(id) };
+			const options = { upsert: true };
+			const updateDoc = {
+				$set: {
+					serviceName: updateService.updateServiceName,
+					serviceImage: updateService.updateServiceImage,
+					price: updateService.updateServicePrice,
+					serviceArea: updateService.updateServiceArea,
+					serviceDescription: updateService.updateServiceDescription,
+					serviceProviderEmail: updateService.updateServiceProviderEmail,
+					serviceProviderName: updateService.updateServiceProviderName,
+				},
+			};
+			const result = await serviceCollection.updateOne(
+				filter,
+				updateDoc,
+				options
+			);
+			res.send(result);
 		});
 
 		// Add service to the database
