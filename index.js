@@ -120,6 +120,25 @@ async function run() {
 
 		// **** BOOKING **** //
 
+		// Get specific user booking
+
+		// http://localhost:5000/api/v1/user/bookings?userEmail=imranhossainshakil56767@gmail.com
+		app.get('/api/v1/user/bookings', async (req, res) => {
+			try {
+				console.log(req.query);
+				const userEmail = req.query.userEmail;
+				console.log(userEmail);
+				let query = {};
+				if (userEmail) {
+					query.userEmail = userEmail;
+				}
+				const result = await bookingCollection.find(query).toArray();
+				res.send(result);
+			} catch (error) {
+				console.log(error);
+			}
+		});
+
 		app.post('/api/v1/user/create-booking', async (req, res) => {
 			try {
 				const bookingData = req.body;
