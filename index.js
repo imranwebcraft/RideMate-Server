@@ -12,13 +12,35 @@ const app = express();
 // Middleware
 app.use(
 	cors({
-		origin: ['http://localhost:5173'],
+		origin: [
+			'https://pawsgo-7d6e0.web.app',
+			'https://pawsgo-7d6e0.firebaseapp.com',
+		],
 		credentials: true,
 	})
 );
 
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
+
+// Verify JWT middleware
+const verifyToken = async (req, res, next) => {
+	// get the token
+	const token = req?.cookies?.token;
+	console.log('Token from middleware', token);
+	if (!token) {
+		return res.status(401).send({ message: 'unAuthorize Access' });
+	}
+
+	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+		if (err) {
+			return res.status(401).send({ message: 'unAuthorize Access' });
+		}
+		req.user = decoded;
+		next();
+	});
+};
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.7o1h45b.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -38,12 +60,11 @@ async function run() {
 
 		// Service collection
 		const serviceCollection = client.db('rideMate').collection('services');
-		// Booking collextion
+		// Booking collection
 		const bookingCollection = client.db('rideMate').collection('bookings');
 
-		// **** ALL SERVICES **** //
+		// **** SERVICES RELATED API **** //
 
-		// http://localhost:5000/api/v1/services?serviceProviderEmail=laila@example.com
 		app.get('/api/v1/services', async (req, res) => {
 			try {
 				const serviceName = req.query.serviceName;
@@ -84,12 +105,10 @@ async function run() {
 				console.log(error);
 			}
 		});
-		// Update service
+		// Update service api
 		app.put('/api/v1/services/:id', async (req, res) => {
 			const id = req.params.id;
 			const updateService = req.body;
-			console.log(id);
-			console.log(updateService);
 			const filter = { _id: new ObjectId(id) };
 			const options = { upsert: true };
 			const updateDoc = {
@@ -126,10 +145,9 @@ async function run() {
 
 		// Get specific user booking
 
-		// http://localhost:5000/api/v1/user/bookings?userEmail=imranhossainshakil56767@gmail.com
 		app.get('/api/v1/user/bookings', async (req, res) => {
 			try {
-				console.log(req.query);
+				console.log('Token user', req.user);
 				const userEmail = req.query.userEmail;
 				const spEmail = req.query.serviceProviderEmail;
 				let query = {};
@@ -146,20 +164,10 @@ async function run() {
 			}
 		});
 
-		app.post('/api/v1/user/create-booking', async (req, res) => {
-			try {
-				const bookingData = req.body;
-				const result = await bookingCollection.insertOne(bookingData);
-				res.send(result);
-				// console.log(result);
-			} catch (error) {
-				console.log(error);
-			}
-		});
-
 		// http://localhost:5000/api/v1/user/bookings/654a485ae5a50c4b9c0c4905
 		app.patch('/api/v1/user/bookings/:id', async (req, res) => {
 			try {
+				console.log('Token user', req.user);
 				const id = req.params.id;
 				const updateStatus = req.body.status;
 				// console.log(id, updateStatus);
@@ -181,21 +189,31 @@ async function run() {
 			}
 		});
 
+		app.post('/api/v1/user/create-booking', async (req, res) => {
+			try {
+				const bookingData = req.body;
+				const result = await bookingCollection.insertOne(bookingData);
+				res.send(result);
+				// console.log(result);
+			} catch (error) {
+				console.log(error);
+			}
+		});
+
 		// **** AUTHENTICATION || JWT **** //
 
 		app.post('/api/v1/auth/access-token', async (req, res) => {
 			try {
 				const user = req.body;
-				console.log(user);
 				// Create token
 				const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-					expiresIn: '10h',
+					expiresIn: '1h',
 				});
 				res
 					.cookie('token', token, {
 						httpOnly: true,
-						secure: process.env.NODE_ENV === 'production',
-						sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+						secure: false,
+						sameSite: 'none',
 					})
 					.send({ message: 'success' });
 			} catch (error) {
