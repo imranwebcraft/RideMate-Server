@@ -164,7 +164,6 @@ async function run() {
 			}
 		});
 
-		// http://localhost:5000/api/v1/user/bookings/654a485ae5a50c4b9c0c4905
 		app.patch('/api/v1/user/bookings/:id', async (req, res) => {
 			try {
 				console.log('Token user', req.user);
@@ -212,8 +211,8 @@ async function run() {
 				res
 					.cookie('token', token, {
 						httpOnly: true,
-						secure: false,
-						sameSite: 'none',
+						secure: process.env.NODE_ENV === 'production',
+						sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
 					})
 					.send({ message: 'success' });
 			} catch (error) {
